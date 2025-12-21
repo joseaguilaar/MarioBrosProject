@@ -26,19 +26,17 @@ public class GenerateLevel {
         System.out.println("****************************************************************");
     }
 
-    public static void runMultiple(MarioLevelGenerator generator, MarioAgent agent, int numLevels, boolean visuals) {
+    public static void runMultiple(String level, MarioAgent agent, int numLevels, boolean visuals) {
         MarioGame game = new MarioGame();
         int passed = 0;
         int coins = 0;
         int kills = 0;
         float totalProgress = 0;
         for (int i = 0; i < numLevels; i++) {
-            String level = generator.getGeneratedLevel(new MarioLevelModel(LEVEL_WIDTH, LEVEL_HEIGHT), new MarioTimer(5 * 60 * 60 * 1000));
-            writeLevel(generator.getGeneratorName(), i, level);
             System.out.println("Running level " + (i + 1) + "..." + (visuals ? "" : " (headless)"));
             //printLevel(level);
             MarioResult runresult = game.runGame(agent, level, TIMER, 0, visuals);
-            //printResults(runresult);
+            printResults(runresult);
 
             totalProgress += runresult.getCompletionPercentage();
             if (runresult.getGameStatus() == GameStatus.WIN) passed++;
@@ -79,22 +77,40 @@ public class GenerateLevel {
         MarioGame game = new MarioGame();
 
         /* todo choose map generator to create a level (uncomment the one you want to use): */
-//        MarioLevelGenerator generator = new levelGenerators.notch.LevelGenerator();    // original generator by Notch
-//        MarioLevelGenerator generator = new levelGenerators.benWeber.LevelGenerator(); // winner of the 2010 PCG Mario AI Competition: makes multiple passes along the level, in each pass adding a new type of level item
-//        MarioLevelGenerator generator = new levelGenerators.linear.LevelGenerator();     // flat ground with holes, occasional pipes and monsters
-//        MarioLevelGenerator generator = new levelGenerators.sampler.LevelGenerator();  // creates levels by sampling parts of original levels
-        MarioLevelGenerator generator = new levelGenerators.random.LevelGenerator();   // places objects randomly
+//        MarioLevelGenerator generator = new levelGenerators.notch.LevelGenerator.java();    // original generator by Notch
+//        MarioLevelGenerator generator = new levelGenerators.benWeber.LevelGenerator.java(); // winner of the 2010 PCG Mario AI Competition: makes multiple passes along the level, in each pass adding a new type of level item
+//        MarioLevelGenerator generator = new levelGenerators.linear.LevelGenerator.java();     // flat ground with holes, occasional pipes and monsters
+//        MarioLevelGenerator generator = new levelGenerators.sampler.LevelGenerator.java();  // creates levels by sampling parts of original levels
+//        MarioLevelGenerator generator = new levelGenerators.random.LevelGenerator.java();   // places objects randomly
+//          MarioLevelGenerator generator = new levelGenerators.fastgenerator.LevelGenerator();
+//          MarioLevelGenerator generator = new levelGenerators.searchBased.LevelGeneratorSB();
+//          MarioLevelGenerator generator = new levelGenerators.constructive.LevelGenerator();
+
+
+         String level = getLevel("./levels/search-based/lvl-3.1.txt");
+//        printLevel(level);
+
 
         /* todo choose level from generator or file */
-        String level = generator.getGeneratedLevel(new MarioLevelModel(LEVEL_WIDTH, LEVEL_HEIGHT), new MarioTimer(5 * 60 * 60 * 1000));
-//        String level = getLevel("./levels/original/lvl-1.txt");
+//        String level;
+//
+//        int level_width = LEVEL_WIDTH -2 ;
+//        for( int i = 0; i < 5; i++ ) {
+//
+////            if(i%6==0 && i!=0){
+////                level_width --;
+////            }
+//            level = generator.getGeneratedLevel(new MarioLevelModel(level_width, LEVEL_HEIGHT), new MarioTimer(5 * 60 * 60 * 1000));
+//            writeLevel("search-based", i + 200, level);
+//            System.out.println("Level generated: 3." + i);
+//
+//        }
 
-//        printLevel(level);
-//        writeLevel("generated", 0, level);
+
 
         /* todo choose agent to run (uncomment the one you want to use): */
 //        MarioAgent marioagent = new agents.human.Agent();            // Human agent - play by yourself: LEFT/RIGHT arrows to move, S to jump, A to shoot fireballs
-//        MarioAgent marioagent = new agents.robinBaumgarten.Agent();  // 46564.8 progress; 40/40 levels passed; A*
+//          MarioAgent marioagent = new agents.robinBaumgarten.Agent();  // 46564.8 progress; 40/40 levels passed; A*
 //        MarioAgent marioagent = new agents.andySloane.Agent();       // 44735.5 progress; 38/40 levels passed; A*
 //        MarioAgent marioagent = new agents.trondEllingsen.Agent();   // 20599.2 progress; 11/40 levels passed; Rule-based
 //        MarioAgent marioagent = new agents.spencerSchumann.Agent();  // 17010.5 progress;  8/40 levels passed; Rule-based
@@ -103,13 +119,13 @@ public class GenerateLevel {
 //        MarioAgent marioagent = new agents.glennHartmann.Agent();    //  1060.0 progress;  0/40 levels passed; Rule-based
 //        MarioAgent marioagent = new agents.sergeyKarakovskiy.Agent();// max run and jump to the right
 //        MarioAgent marioagent = new agents.random.Agent();           // random agent (much higher probabilities to run/jump right)
-//        MarioAgent marioagent = new agents.doNothing.Agent();        // stays in place
-        MarioAgent marioagent = new agents.collector.Agent();        // A* with bonus for collecting coins;  from: https://github.com/obsidian-zero/Mario-AI-Framework
-//        MarioAgent marioagent = new agents.killer.Agent();           // A* with bonus for defeating enemies; from: https://github.com/obsidian-zero/Mario-AI-Framework
-
-//        MarioResult runresult = game.runGame(marioagent, level, TIMER, 0, true);
+//        MarioAgent marioagent = new agents.doNothing.Agent();        // stays in plac
+//        MarioAgent marioagent = new agents.collector.Agent();        // A* with bonus for collecting coins;  from: https://github.com/obsidian-zero/Mario-AI-Framework
+          MarioAgent marioagent = new agents.killer.Agent();           // A* with bonus for defeating enemies; from: https://github.com/obsidian-zero/Mario-AI-Framework
+//          MarioResult runresult = game.runGame(marioagent, level, TIMER, 0, true);
 //        printResults(runresult);
 
-        runMultiple(generator, marioagent, 5, false);
+          runMultiple(level, marioagent, 20, false);
+
     }
 }

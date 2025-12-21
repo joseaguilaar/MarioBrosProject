@@ -36,6 +36,7 @@ public class LevelGenerator implements MarioLevelGenerator {
             model.setBlock(x + width - 1 - i, y, type);
         }
 
+
         if (width % 2 == 1 && this.rnd.nextDouble() < 0.25) {
             char type = MarioLevelModel.getBumpableTiles()[this.rnd.nextInt(MarioLevelModel.getBumpableTiles().length)];
             model.setBlock(x + width / 2, y, type);

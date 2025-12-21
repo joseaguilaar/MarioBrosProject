@@ -19,7 +19,7 @@ Symbol Reference:
 - 'r': Red Koopa
 - 'X': Ground Block
 - '#': Pyramind Block
-- '%': Jump through platform
+  - '%': Jump through platform
 - '|': Background for the jump through platform
 - '\*': Bullet bill where the top '\*' will be the bullet bill head
 - 'B': Bullet bill head
