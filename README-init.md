@@ -1,7 +1,7 @@
 # Mario Bros Project
 
-**Project Title:** NL-Mario: Natural Language Driven Hybrid Level Generation
-**Team:** Jose Aguilar (Leader), Jose Carral
+**Project Title:** NL-Mario: Natural Language Driven Hybrid Level Generation  
+**Team:** Jose Aguilar (Leader), Jose Carral  
 **Date:** 29.12.2025
 
 ## 1. Abstract
