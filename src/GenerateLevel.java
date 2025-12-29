@@ -125,7 +125,7 @@ public class GenerateLevel {
 //          MarioResult runresult = game.runGame(marioagent, level, TIMER, 0, true);
 //        printResults(runresult);
 
-          runMultiple(level, marioagent, 20, false);
+          runMultiple(level, marioagent, 1, true);
 
     }
 }
