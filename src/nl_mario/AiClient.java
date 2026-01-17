@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class AiClient {
     // clave de google gemini que he generado (API KEY)
-    private static final String API_KEY = "AIzaSyDHDAPbsuEHB36fM6OJjj38HnWDzkvyw7w";
+    private static final String API_KEY = "AIzaSyCkxuMl_NMmW3IQQraDny-puegSFVrJOek";
 
     // Usamos Gemini 2.5 Flash que es rápido y soporta modo JSON
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
