@@ -8,10 +8,10 @@ import okhttp3.*;
 import java.io.IOException;
 
 public class AiClient {
-    // clave de google gemini que he generado (API KEY)
-    private static final String API_KEY = "AIzaSyCkxuMl_NMmW3IQQraDny-puegSFVrJOek";
+    // Google Gemini key generated (API KEY)
+    private static final String API_KEY = "add_api_key_here";
 
-    // Usamos Gemini 2.5 Flash que es rápido y soporta modo JSON
+    // We use Gemini 2.5 Flash which is fast and supports JSON mode
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
     private final OkHttpClient client;
     private final Gson gson;
@@ -34,10 +34,10 @@ public class AiClient {
                 "User request: '" + userPrompt + "'\n" +
                 "Output ONLY valid JSON parameters.";
 
-        // 2. Construimos el JSON específico para GEMINI
+        // 2. Build the specific JSON for GEMINI
         JsonObject jsonBody = new JsonObject();
 
-        // Parte "contents"
+        // contents part
         JsonArray contents = new JsonArray();
         JsonObject contentObj = new JsonObject();
         JsonArray parts = new JsonArray();
@@ -48,29 +48,29 @@ public class AiClient {
         contents.add(contentObj);
         jsonBody.add("contents", contents);
 
-        // Parte "generationConfig" para forzar respuesta JSON
+        // "generationConfig" part to force JSON response
         JsonObject genConfig = new JsonObject();
         genConfig.addProperty("response_mime_type", "application/json");
         jsonBody.add("generationConfig", genConfig);
 
-        // 3. Crear la petición HTTP
+        // 3. Create the HTTP request
         RequestBody body = RequestBody.create(jsonBody.toString(), MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
                 .url(API_URL)
                 .post(body)
                 .build();
 
-        // 4. Ejecutar y parsear
+        // 4. Execute and parse
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                System.err.println("Error en Gemini API: " + response.code() + " " + response.message());
+                System.err.println("Error in Gemini API: " + response.code() + " " + response.message());
                 if (response.body() != null) System.err.println(response.body().string());
                 return getDefaultConfig();
             }
 
             String responseBody = response.body().string();
 
-            // Parsear la respuesta de Gemini (Estructura: candidates[0].content.parts[0].text)
+            // Parse the Gemini response
             JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
             String contentJsonString = responseJson.getAsJsonArray("candidates")
                     .get(0).getAsJsonObject()

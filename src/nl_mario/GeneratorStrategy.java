@@ -4,9 +4,9 @@ import engine.core.MarioLevelModel;
 
 public interface GeneratorStrategy {
     /**
-     * Genera un nivel basado en la configuración recibida.
-     * @param model El modelo del nivel (donde escribiremos los bloques)
-     * @param config La configuración que vino de la IA (Gemini)
+     * Generates a level based on the received configuration.
+     * @param model The level model (where we will write the blocks)
+     * @param config The configuration that came from the AI (Gemini)
      */
     void generate(MarioLevelModel model, LevelConfig config);
 }

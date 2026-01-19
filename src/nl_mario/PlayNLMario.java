@@ -10,26 +10,25 @@ public class PlayNLMario {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        // 1. Instanciar tu generador
+        // 1. Instantiate the generator
         NLMarioGenerator generator = new NLMarioGenerator();
 
-        // 2. Pedir al usuario qué quiere jugar
+        // 2. Ask the user what they want to play
         System.out.println("------------------------------------------------");
-        System.out.println("   BIENVENIDO A NL-MARIO (AI POWERED)   ");
+        System.out.println("   WELCOME TO MARIO BROS GENERATOR (AI POWERED)   ");
         System.out.println("------------------------------------------------");
-        System.out.println("Describe el nivel que quieres jugar:");
+        System.out.println("Describe the level you want to play:");
         System.out.print("> ");
         String prompt = scanner.nextLine();
 
-        // 3. Configurar el generador con la IA
+        // 3. Configure the generator with the AI
         generator.setUserPrompt(prompt);
 
-        // 4. Lanzar el juego
-        System.out.println("Generando nivel y lanzando juego...");
+        // 4. Launch the game
+        System.out.println("Generating level and launching game...");
         MarioGame game = new MarioGame();
 
-        // Ejecutamos el juego en modo visual (true)
-        // El último parámetro (200) es el límite de tiempo del temporizador de Mario
+        // 5. Run the game in visual mode true
         game.runGame(new agents.robinBaumgarten.Agent(), generator.getGeneratedLevel(new MarioLevelModel(150, 16), null), 200, 0, true);
     }
 }
