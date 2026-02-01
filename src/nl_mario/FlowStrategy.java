@@ -7,97 +7,192 @@ public class FlowStrategy implements GeneratorStrategy {
 
     private final Random random = new Random();
 
+    // Official characters
+    private static final char GROUND = MarioLevelModel.GROUND;
+    private static final char BRICK = MarioLevelModel.NORMAL_BRICK;
+    private static final char PLATFORM = MarioLevelModel.PLATFORM; // Jump through platform
+    private static final char COIN = MarioLevelModel.COIN;
+    private static final char ENEMY = MarioLevelModel.GOOMBA;
+    private static final char PIPE = MarioLevelModel.PIPE;
+    private static final char CANNON = MarioLevelModel.BULLET_BILL;
+
     @Override
     public void generate(MarioLevelModel model, LevelConfig config) {
-        // Typical dimensions
         int width = model.getWidth();
-        int floorHeight = model.getHeight() - 4; // The floor is at height 12 approx
+        int floorHeight = model.getHeight() - 4;
 
-        // 1. Clear the map (all air)
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < model.getHeight(); y++) {
-                model.setBlock(x, y, MarioLevelModel.EMPTY);
-            }
-        }
+        model.clearMap();
 
-        // 2. Create safe start and end platforms
-        createSafeZone(model, 0, 10, floorHeight);
-        createSafeZone(model, width - 10, width, floorHeight);
+        // 1. INITIAL SAFE ZONE
+        buildFloor(model, 0, 10, floorHeight);
+        model.setBlock(1, floorHeight - 1, MarioLevelModel.MARIO_START);
 
-        // 3. The Constructive Cursor
         int currentX = 10;
-        int currentHeight = floorHeight;
+        int currentFloor = floorHeight;
 
+        // 2. MAIN GENERATION LOOP
         while (currentX < width - 10) {
-            // A. Decide if we make a gap
-            // Difficulty increases the probability of gaps
-            if (random.nextDouble() < config.difficulty * 0.5) {
-                int gapSize = 2 + random.nextInt((int)(config.difficulty * 3) + 1); // Gaps from 2 to 5 blocks
-                currentX += gapSize; // Jump the gap (leave air)
+
+            // A. Decide if we add a GAP
+            // In Flow, gaps are for running jumps, not for stopping.
+            if (random.nextDouble() < config.difficulty * 0.4) {
+                int gapSize = 2 + random.nextInt(3 + (int)(config.difficulty * 2)); // width from 2 to 5
+
+                // Put coin arc over the gap (Visual guide)
+                drawCoinArc(model, currentX, gapSize, currentFloor - 2);
+
+                currentX += gapSize; // Move forward leaving air
             }
 
-            // B. Decide length of the next platform
-            int platformLength = 3 + random.nextInt(6);
+            // B. Choose TERRAIN PATTERN
+            // Instead of random ground, we pick a level "piece"
+            double roll = random.nextDouble();
+            int length = 0;
 
-            // C. Decide height (Verticality)
-            // If verticality is HIGH, change height more often
-            if ("HIGH".equalsIgnoreCase(config.verticality) && random.nextDouble() < 0.6) {
-                int change = random.nextBoolean() ? -2 : 2; // Go up or down
-                currentHeight += change;
-                // Keep within reasonable limits
-                currentHeight = Math.max(8, Math.min(model.getHeight() - 2, currentHeight));
+            if (roll < 0.2 && config.difficulty > 0.3) {
+                // 20% -> Pipe Zone (Rhythmic jumps)
+                length = buildPipeHurdles(model, currentX, currentFloor);
+            } else if (roll < 0.4) {
+                // 20% -> Sky Bridge - Fast upper route
+                length = buildSkyBridge(model, currentX, currentFloor, config);
+            } else if (roll < 0.5) {
+                // 10% -> Cannon Zone
+                length = buildCannonRun(model, currentX, currentFloor);
             } else {
-                // If LOW, tend to return to base ground
-                if (currentHeight != floorHeight && random.nextDouble() < 0.5) {
-                    currentHeight = floorHeight;
-                }
-            }
+                // 50% -> Standard Ground with Enemies (Classic Flow)
+                length = 4 + random.nextInt(6);
 
-            // D. Build the platform
-            int endX = Math.min(currentX + platformLength, width - 10);
-            for (int x = currentX; x < endX; x++) {
-                // Solid ground
-                model.setBlock(x, currentHeight, MarioLevelModel.GROUND);
-                // Fill underneath so it doesn't float awkwardly
-                for (int y = currentHeight + 1; y < model.getHeight(); y++) {
-                    model.setBlock(x, y, MarioLevelModel.GROUND);
+                // Smooth height variation (Hills)
+                if ("HIGH".equalsIgnoreCase(config.verticality) && random.nextDouble() < 0.4) {
+                    int change = random.nextBoolean() ? -2 : 2;
+                    currentFloor = Math.max(8, Math.min(model.getHeight() - 4, currentFloor + change));
+                } else {
+                    // Try to go back to base floor
+                    if (currentFloor != floorHeight && random.nextDouble() < 0.5) currentFloor = floorHeight;
                 }
 
-                // E. Enemies and Coins
-                decorate(model, x, currentHeight, config);
+                buildFloor(model, currentX, currentX + length, currentFloor);
+                decorateClassic(model, currentX, length, currentFloor, config);
             }
 
-            currentX = endX;
+            currentX += length;
         }
 
-        // Place the exit
-        model.setBlock(width - 2, floorHeight - 3, MarioLevelModel.MARIO_EXIT);
+        // 3. FINAL ZONE
+        buildFloor(model, width - 10, width, floorHeight);
+        model.setBlock(width - 2, floorHeight - 1, MarioLevelModel.MARIO_EXIT);
     }
 
-    private void createSafeZone(MarioLevelModel model, int start, int end, int height) {
+    // --- PATTERN BUILDER METHODS ---
+
+    // Generates floating blocks in the air. If you are fast you go up.
+    private int buildSkyBridge(MarioLevelModel model, int x, int y, LevelConfig config) {
+        int length = 6 + random.nextInt(5); // 6 to 10 blocks
+
+        // 1. Base floor (Slow/safe route)
+        buildFloor(model, x, x + length, y);
+
+        // 2. Air route (Fast route)
+        // Height: 4 blocks up (perfect jump)
+        int skyY = y - 4;
+
+        for (int i = 1; i < length - 1; i++) {
+            // Use pass-through platforms or bricks
+            char block = (random.nextDouble() < 0.5) ? PLATFORM : BRICK;
+            model.setBlock(x + i, skyY, block);
+
+            // Coins or reward up there to motivate
+            if (random.nextDouble() < 0.3) model.setBlock(x + i, skyY - 1, COIN);
+        }
+
+        // Enemy below to punish the slow player
+        if (config.enemyDensity > 0.4) {
+            model.setBlock(x + length / 2, y - 1, ENEMY);
+        }
+
+        return length;
+    }
+
+    // Generates 2 or 3 pipes in a row to jump without stopping
+    private int buildPipeHurdles(MarioLevelModel model, int x, int y) {
+        int pipes = 2 + random.nextInt(2); // 2 or 3 pipes
+        int spacing = 3; // Space between them
+        int totalLen = pipes * spacing + 2;
+
+        buildFloor(model, x, x + totalLen, y);
+
+        for (int i = 0; i < pipes; i++) {
+            int px = x + 2 + (i * spacing);
+            int pHeight = 2; // Low pipes to keep the rhythm
+
+            // Draw pipe
+            model.setBlock(px, y - 1, PIPE);
+            model.setBlock(px + 1, y - 1, PIPE);
+            model.setBlock(px, y - 2, PIPE);
+            model.setBlock(px + 1, y - 2, PIPE);
+
+            // Piranha Plant (optional, breaks flow, better empty for speed)
+        }
+        return totalLen;
+    }
+
+    // Flat zone with Bullet Bills shooting
+    private int buildCannonRun(MarioLevelModel model, int x, int y) {
+        int length = 8;
+        buildFloor(model, x, x + length, y);
+
+        // A cannon at the end or start
+        int cannonX = x + 4;
+        model.setBlock(cannonX, y - 1, CANNON);
+        model.setBlock(cannonX, y - 2, CANNON); // Low height to force a jump
+
+        return length;
+    }
+
+    // --- UTILS AND DECORATION ---
+
+    private void decorateClassic(MarioLevelModel model, int startX, int length, int y, LevelConfig config) {
+        for (int i = 1; i < length - 1; i++) {
+            int cx = startX + i;
+
+            // Enemies (Spaced out to avoid too many)
+            if (random.nextDouble() < config.enemyDensity * 0.25) {
+                // Koopas (k) are better for Flow because you can kick them
+                char enemy = (random.nextBoolean()) ? 'k' : ENEMY;
+                model.setBlock(cx, y - 1, enemy);
+            }
+
+            // ? Blocks (PowerUps)
+            if (random.nextDouble() < 0.1) {
+                model.setBlock(cx, y - 4, MarioLevelModel.SPECIAL_QUESTION_BLOCK);
+            }
+        }
+    }
+
+    // Draw coins in an arc over a gap
+    private void drawCoinArc(MarioLevelModel model, int startX, int gapSize, int startY) {
+        // Simple visual logic
+        if (gapSize <= 2) {
+            model.setBlock(startX + 1, startY - 1, COIN);
+        } else if (gapSize == 3) {
+            model.setBlock(startX + 1, startY - 1, COIN);
+            model.setBlock(startX + 2, startY - 1, COIN);
+        } else {
+            // Arc for big gaps
+            model.setBlock(startX + 1, startY - 1, COIN);
+            model.setBlock(startX + 2, startY - 2, COIN); // The highest one
+            model.setBlock(startX + 3, startY - 1, COIN);
+        }
+    }
+
+    private void buildFloor(MarioLevelModel model, int start, int end, int y) {
         for (int x = start; x < end; x++) {
-            for (int y = height; y < model.getHeight(); y++) {
-                model.setBlock(x, y, MarioLevelModel.GROUND);
+            if (x < model.getWidth()) {
+                model.setBlock(x, y, GROUND);
+                for (int dy = 1; y + dy < model.getHeight(); dy++) {
+                    model.setBlock(x, y + dy, GROUND);
+                }
             }
-        }
-    }
-
-    private void decorate(MarioLevelModel model, int x, int groundY, LevelConfig config) {
-        // Enemies
-        if (random.nextDouble() < config.enemyDensity * 0.3) { // 0.3 is a balancing factor
-            // Choose enemy type
-            char enemy = MarioLevelModel.GOOMBA;
-            if (config.difficulty > 0.6 && random.nextDouble() < 0.3) {
-                enemy = MarioLevelModel.GREEN_KOOPA; // Harder
-            }
-            model.setBlock(x, groundY - 1, enemy);
-            return; // If there is an enemy, don't put a coin in the same spot
-        }
-
-        // Coins
-        if (random.nextDouble() < config.coinDensity * 0.4) {
-            // Coin floating a bit above
-            model.setBlock(x, groundY - 3, MarioLevelModel.COIN);
         }
     }
 }

@@ -30,5 +30,6 @@ public class PlayNLMario {
 
         // 5. Run the game in visual mode true
         game.runGame(new agents.robinBaumgarten.Agent(), generator.getGeneratedLevel(new MarioLevelModel(150, 16), null), 200, 0, true);
+//        game.playGame(generator.getGeneratedLevel(new MarioLevelModel(150, 16), null), 200, 0);
     }
 }

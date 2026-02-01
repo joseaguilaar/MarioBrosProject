@@ -8,6 +8,7 @@ import nl_mario.FlowStrategy;
 import nl_mario.MazeStrategy;
 import nl_mario.GeneratorStrategy;
 import nl_mario.LevelConfig;
+import nl_mario.LevelRepairer;
 
 public class NLMarioGenerator implements MarioLevelGenerator {
 
@@ -37,20 +38,27 @@ public class NLMarioGenerator implements MarioLevelGenerator {
         GeneratorStrategy strategy;
 
         if ("PUZZLE".equalsIgnoreCase(currentConfig.generationStrategy)) {
-            // strategy = new MazeStrategy();
-            System.out.println("PUZZLE Strategy selected(maze master not active yet");
+            System.out.println(">> Generating PUZZLE mode (MazeStrategy)...");
             strategy = new MazeStrategy();
         } else {
+            System.out.println(">> Generating FLOW mode (FlowStrategy)...");
             strategy = new FlowStrategy();
         }
 
         // 2. Execute generation
         strategy.generate(model, currentConfig);
 
-        // 3. Return the level in String format (the framework requires it)
+
+        // 3. PHASE 3: OPTIMIZATION (Search-Based Repair)
+        // We only execute it if the level is complex to ensure passability
+        if (currentConfig.difficulty > 0.3 && "FLOW".equalsIgnoreCase(currentConfig.generationStrategy)) {
+            LevelRepairer repairer = new LevelRepairer();
+            repairer.repairLevel(model);
+        }
+
+        // 4. Return the level in String format (the framework requires it)
         return model.getMap();
     }
-
     @Override
     public String getGeneratorName() {
         return "NL-MarioGenerator";

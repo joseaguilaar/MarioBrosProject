@@ -8,71 +8,55 @@ import engine.helper.GameStatus;
 
 public class LevelRepairer {
 
-    private static final int MAX_ITERATIONS = 5; // Intentos máximos de reparación
+    // We will attempt to fix the level up to 5 times
+    private static final int MAX_ATTEMPTS = 5;
 
-    /**
-     * Intenta reparar el nivel simulando partidas con un agente.
-     * @param model El modelo del nivel generado.
-     * @return true si el nivel es jugable, false si sigue fallando tras los intentos.
-     */
-    public boolean repairLevel(MarioLevelModel model) {
+    public void repairLevel(MarioLevelModel model) {
+        System.out.println("   [Optimization] Starting validation with A* Agent...");
+
         MarioGame game = new MarioGame();
-        // Usamos el agente RobinBaumgarten (A*) porque es el mejor jugando
+        // We use the best available agent for validation
         MarioAgent agent = new agents.robinBaumgarten.Agent();
 
-        for (int i = 0; i < MAX_ITERATIONS; i++) {
-            System.out.println("   [Reparador] Simulación #" + (i + 1) + "...");
+        for (int i = 0; i < MAX_ATTEMPTS; i++) {
+            // 1. Simulate game
+            // We limit the time to 200 ticks of simulated gameplay
+            MarioResult result = game.runGame(agent, model.getMap(), 200, 0, false);
 
-            // Simular (Timer 20 fps * 200 segundos de juego aprox, depende del framework)
-            // Ponemos un tiempo generoso para asegurar
-            MarioResult result = game.runGame(agent, model.getMap(), 20, 0, false);
-
+            // 2. Check result
             if (result.getGameStatus() == GameStatus.WIN) {
-                System.out.println("   ✅ [Reparador] El nivel es completable. ¡Listo!");
-                return true;
+                System.out.println("   [Optimization] ✅ The level is PASSABLE. Iteration: " + (i+1));
+                return; // Work done
             }
 
-            // --- CORRECCIÓN AQUÍ ---
-            // Calculamos dónde murió basándonos en el porcentaje completado
+            // 3. If lost, calculate where (approximately)
             float percent = result.getCompletionPercentage();
-            int deathX = (int) (percent * model.getWidth());
-            // -----------------------
+            int failedX = (int) (percent * model.getWidth());
 
-            System.out.println("   ❌ [Reparador] Agente murió al " + (percent*100) + "% (Bloque X=" + deathX + ")");
+            System.out.println("   [Optimization] Failure detected at X=" + failedX + " (" + (int)(percent*100) + "%). Applying patch...");
 
-            // Aplicar arreglo un poco antes de donde murió (para asegurar)
-            applyFix(model, Math.max(5, deathX - 2));
+            // 4. APPLY REPAIR (Mutation)
+            // Strategy: Build a safe bridge in the failure zone
+            fixZone(model, failedX);
         }
 
-        System.err.println("   ⚠️ [Reparador] No se pudo arreglar al 100%.");
-        return false;
+        System.out.println("   [Optimization]  Attempt limit reached. The level might be too difficult.");
     }
 
-    private void applyFix(MarioLevelModel model, int x) {
-        int width = model.getWidth();
-        int height = model.getHeight();
+    // Creates safe ground around the death zone
+    private void fixZone(MarioLevelModel model, int centerX) {
+        int startX = Math.max(0, centerX - 2);
+        int endX = Math.min(model.getWidth(), centerX + 4);
+        int floorY = model.getHeight() - 2;
 
-        // Definimos la zona a reparar (donde murió el agente + un poco adelante)
-        int startX = Math.max(0, x);
-        int endX = Math.min(width, x + 5);
+        for (int x = startX; x < endX; x++) {
+            // Fill gaps with solid ground
+            model.setBlock(x, floorY, MarioLevelModel.GROUND);
+            model.setBlock(x, floorY + 1, MarioLevelModel.GROUND);
 
-        System.out.println("      -> Construyendo puente de emergencia en X: " + startX + "-" + endX);
-
-        // ESTRATEGIA DE REPARACIÓN BÁSICA:
-        // 1. Rellenar agujeros con suelo.
-        // 2. Eliminar enemigos en esa zona (por si era un salto imposible por enemigos).
-
-        int floorY = height - 2;
-
-        for (int currX = startX; currX < endX; currX++) {
-            // Poner suelo sólido
-            model.setBlock(currX, floorY, MarioLevelModel.GROUND);
-            model.setBlock(currX, floorY + 1, MarioLevelModel.GROUND); // Base
-
-            // Borrar obstáculos justo encima del suelo (limpieza de zona)
-            model.setBlock(currX, floorY - 1, MarioLevelModel.EMPTY);
-            model.setBlock(currX, floorY - 2, MarioLevelModel.EMPTY);
-            model.setBlock(currX, floorY - 3, MarioLevelModel.EMPTY);
+            // Remove enemies or obstacles right above that might block the path
+            model.setBlock(x, floorY - 1, MarioLevelModel.EMPTY);
+            model.setBlock(x, floorY - 2, MarioLevelModel.EMPTY);
         }
     }
 }
