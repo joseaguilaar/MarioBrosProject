@@ -11,7 +11,7 @@
 Making video game levels automatically is usually so difficult. On one hand, you have the "old school" way (using code and algorithms), which creates levels that work perfectly but is very boring to use because you have to tweak a thousand numbers. On the other hand, you have modern AI (like ChatGPT or Gemini), which is very creative but often makes broken levels that are impossible to play.
 
 **The Problem:**
-For a game designer or a casual player, having to manually change settings like `gap_size = 4` or `enemy_density = 0.8` is tedious and confusing. Ideally, you just want to ask for what you want. But if you ask an LLM directly to "Make a Mario level," it often creates geometric nonsense or puts blocks in places where Mario can't even move.
+For a game designer or a casual player, having to manually change settings like `coins_density` or `enemy_density = 0.8` is tedious and confusing. Ideally, you just want to ask for what you want. But if you ask an LLM directly to "Make a Mario level," it often creates geometric nonsense or puts blocks in places where Mario can't even move.
 
 **Our Solution:**
 **NL-Mario** is a hybrid system that combines the best of both worlds. We use Google Gemini as a "translator" to understand what the user wants in plain English (e.g., *"I want a hard puzzle dungeon"*). Then, instead of letting the AI draw the level itself, our system uses that information to control a reliable code generator. This ensures the level matches with description but is also 100% playable and bug-free.
