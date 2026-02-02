@@ -7,7 +7,6 @@ public class FlowStrategy implements GeneratorStrategy {
 
     private final Random random = new Random();
 
-    // Official characters
     private static final char GROUND = MarioLevelModel.GROUND;
     private static final char BRICK = MarioLevelModel.NORMAL_BRICK;
     private static final char PLATFORM = MarioLevelModel.PLATFORM; // Jump through platform
@@ -45,7 +44,7 @@ public class FlowStrategy implements GeneratorStrategy {
             }
 
             // B. Choose TERRAIN PATTERN
-            // Instead of random ground, we pick a level "piece"
+            // We random pick a level "piece"
             double roll = random.nextDouble();
             int length = 0;
 
@@ -94,7 +93,7 @@ public class FlowStrategy implements GeneratorStrategy {
 
         // 2. Air route (Fast route)
         // Height: 4 blocks up (perfect jump)
-        int skyY = y - 4;
+        int skyY = y - 3;
 
         for (int i = 1; i < length - 1; i++) {
             // Use pass-through platforms or bricks
@@ -131,7 +130,6 @@ public class FlowStrategy implements GeneratorStrategy {
             model.setBlock(px, y - 2, PIPE);
             model.setBlock(px + 1, y - 2, PIPE);
 
-            // Piranha Plant (optional, breaks flow, better empty for speed)
         }
         return totalLen;
     }
@@ -158,7 +156,7 @@ public class FlowStrategy implements GeneratorStrategy {
             // Enemies (Spaced out to avoid too many)
             if (random.nextDouble() < config.enemyDensity * 0.25) {
                 // Koopas (k) are better for Flow because you can kick them
-                char enemy = (random.nextBoolean()) ? 'k' : ENEMY;
+                char enemy = (random.nextBoolean()) ? MarioLevelModel.GREEN_KOOPA : ENEMY;
                 model.setBlock(cx, y - 1, enemy);
             }
 
@@ -171,7 +169,6 @@ public class FlowStrategy implements GeneratorStrategy {
 
     // Draw coins in an arc over a gap
     private void drawCoinArc(MarioLevelModel model, int startX, int gapSize, int startY) {
-        // Simple visual logic
         if (gapSize <= 2) {
             model.setBlock(startX + 1, startY - 1, COIN);
         } else if (gapSize == 3) {

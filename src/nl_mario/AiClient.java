@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class AiClient {
     // Google Gemini key generated (API KEY)
-    private static final String API_KEY = "AIzaSyAaYx9zQbp7w_ACaSP2GFaMUe4kbvKs-Zg";
+    private static final String API_KEY = "add api key here";
 
     // We use Gemini 2.5 Flash which is fast and supports JSON mode
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
@@ -29,7 +29,6 @@ public class AiClient {
                 "- difficulty: 0.0 to 1.0.\n" +
                 "- enemyDensity: 0.0 to 1.0.\n" +
                 "- coinDensity: 0.0 to 1.0.\n" +
-                "- puzzleComplexity: 1 (simple) or 2 (complex).\n" +
                 "- verticality: 'LOW' (flat) or 'HIGH' (hilly).\n" +
                 "User request: '" + userPrompt + "'\n" +
                 "Output ONLY valid JSON parameters.";
@@ -93,7 +92,6 @@ public class AiClient {
         config.difficulty = 0.4;
         config.enemyDensity = 0.5;
         config.coinDensity = 0.5;
-        config.puzzleComplexity = 1;
         config.verticality = "HIGH";
         return config;
     }

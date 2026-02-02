@@ -17,9 +17,6 @@ public class LevelConfig {
     @SerializedName("coinDensity")
     public double coinDensity; // 0.0 to 1.0
 
-    @SerializedName("puzzleComplexity")
-    public int puzzleComplexity; // 1 or 2
-
     @SerializedName("verticality")
     public String verticality; // "LOW" or "HIGH"
 
@@ -34,7 +31,6 @@ public class LevelConfig {
                 ", Diff=" + difficulty +
                 ", Enemies=" + enemyDensity +
                 ", Coins=" + coinDensity +
-                ", Puzzle=" + puzzleComplexity +
                 ", Vertical=" + verticality +
                 '}';
     }

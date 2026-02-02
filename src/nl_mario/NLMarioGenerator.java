@@ -49,7 +49,7 @@ public class NLMarioGenerator implements MarioLevelGenerator {
         strategy.generate(model, currentConfig);
 
 
-        // 3. PHASE 3: OPTIMIZATION (Search-Based Repair)
+        // 3. OPTIMIZATION (Search-Based Repair)
         // We only execute it if the level is complex to ensure passability
         if (currentConfig.difficulty > 0.3 && "FLOW".equalsIgnoreCase(currentConfig.generationStrategy)) {
             LevelRepairer repairer = new LevelRepairer();
