@@ -3,7 +3,6 @@
 
 **Team:** Jose Aguilar (Leader), Jose Carral
 **Date:** 05.02.2026
-**Course:** Artificial Intelligence in Games
 
 ---
 
