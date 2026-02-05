@@ -80,7 +80,7 @@ We verified the `MazeStrategy` logic manually.
 ## 5. How to Run the Code
 
 1.  **Prerequisites:** Java Development Kit (JDK).
-2.  **API Key:** You need a valid Google Gemini API Key.
+2.  **API Key:** You need a valid Google Gemini API Key, you can use the key that we will send you by email (as we can upload it to github), or create a new one here: https://aistudio.google.com/api-keys)
     * Open `src/nl_mario/AiClient.java`.
     * Replace the placeholder string with your key: `private static final String API_KEY = "YOUR_KEY_HERE";`.
 3.  **Execution:**
