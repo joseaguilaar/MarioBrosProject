@@ -83,7 +83,8 @@ We verified the `MazeStrategy` logic manually.
 2.  **API Key:** You need a valid Google Gemini API Key, you can use the key that we will send you by email (as we can upload it to github), or create a new one here: https://aistudio.google.com/api-keys)
     * Open `src/nl_mario/AiClient.java`.
     * Replace the placeholder string with your key: `private static final String API_KEY = "YOUR_KEY_HERE";`.
-3.  **Execution:**
+3.  * If you wanted to execute the FlowRunner by robinBaumgarten, you can discomment this line in PlayNLMario.java.
+4.**Execution:**
     * Run the `PlayNLMario.java` file.
     * The console will ask: `Describe the level you want to play:`.
     * Type your description (e.g., *"I want a hard puzzle maze"*).
