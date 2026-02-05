@@ -8,8 +8,8 @@ import okhttp3.*;
 import java.io.IOException;
 
 public class AiClient {
-    // Google Gemini key generated (API KEY)
-    private static final String API_KEY = "add api key here";
+    // Google Gemini key (API KEY)
+    private static final String API_KEY = "AIzaSyDsO64oEm2qaCD3TNfZnG_4GHBt6kHWTA8";
 
     // We use Gemini 2.5 Flash which is fast and supports JSON mode
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
@@ -47,7 +47,7 @@ public class AiClient {
         contents.add(contentObj);
         jsonBody.add("contents", contents);
 
-        // "generationConfig" part to force JSON response
+        // "generationConfig" part to force JSON response, not messages
         JsonObject genConfig = new JsonObject();
         genConfig.addProperty("response_mime_type", "application/json");
         jsonBody.add("generationConfig", genConfig);

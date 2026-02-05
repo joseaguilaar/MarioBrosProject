@@ -38,7 +38,8 @@ public class FlowStrategy implements GeneratorStrategy {
                 int gapSize = 2 + random.nextInt(3 + (int)(config.difficulty * 2)); // width from 2 to 5
 
                 // Put coin arc over the gap (Visual guide)
-                drawCoinArc(model, currentX, gapSize, currentFloor - 2);
+                if( random.nextDouble() < config.coinDensity )
+                    drawCoinArc(model, currentX, gapSize, currentFloor - 2);
 
                 currentX += gapSize; // Move forward leaving air
             }
@@ -101,7 +102,7 @@ public class FlowStrategy implements GeneratorStrategy {
             model.setBlock(x + i, skyY, block);
 
             // Coins or reward up there to motivate
-            if (random.nextDouble() < 0.3) model.setBlock(x + i, skyY - 1, COIN);
+            if( random.nextDouble() < config.coinDensity ) model.setBlock(x + i, skyY - 1, COIN);
         }
 
         // Enemy below to punish the slow player
@@ -193,3 +194,8 @@ public class FlowStrategy implements GeneratorStrategy {
         }
     }
 }
+
+
+//promt examples:
+// a flow level, really difficult, with so much enemies, a lot of coins, and high verticality.
+//
