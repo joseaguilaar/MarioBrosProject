@@ -194,8 +194,3 @@ public class FlowStrategy implements GeneratorStrategy {
         }
     }
 }
-
-
-//promt examples:
-// a flow level, really difficult, with so much enemies, a lot of coins, and high verticality.
-//
